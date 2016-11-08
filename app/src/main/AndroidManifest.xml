@@ -26,7 +26,9 @@
         <activity
             android:name=".OverviewActivity"
             android:label="@string/overview_title" />
-
+        <activity
+            android:name=".AddActivity"
+            android:label="@string/activity_add_title" />
     </application>
 
 </manifest>

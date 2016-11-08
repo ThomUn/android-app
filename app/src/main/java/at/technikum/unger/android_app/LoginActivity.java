@@ -31,10 +31,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import at.technikum.unger.android_app.rest.pojo.ErrorMessage;
+import at.technikum.unger.android_app.rest.pojo.RegisterRequest;
+import at.technikum.unger.android_app.rest.pojo.RegisterResponse;
+import at.technikum.unger.android_app.rest.pojo.User;
+import at.technikum.unger.android_app.rest.rf.RFUserInterface;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -310,44 +322,94 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-            Log.d("test", "i was here");
-
-
-
-            //10.0.2.2:8080/XXX -> /test -> "THIS IS TEST"
-
-//            try {
-//                // Simulate network access.
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                return false;
-//            }
-
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("http://10.0.2.2:8080/")
-                    .build();
-
-
-            // SEND POST email / password
-
-            // IF OK -> next page
-            // IF NOT -> return false
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
+            Retrofit retrofit = null;
+            if (Build.MODEL.contains("Android SDK built for x86")){
+                // Emulator
+                retrofit = new Retrofit.Builder()
+                        .baseUrl("http://10.0.2.2:8080/")
+                        .addConverterFactory(JacksonConverterFactory.create())
+                        .build();
+            } else {
+                // Real device
+                retrofit = new Retrofit.Builder()
+                        .baseUrl("http://192.168.0.10:8080/")
+                        .addConverterFactory(JacksonConverterFactory.create())
+                        .build();
             }
+            RFUserInterface userService = retrofit.create(RFUserInterface.class);
 
-            //            // Explicit Intent by specifying its class name
-//            Intent i = new Intent(LoginActivity.this, OverviewActivity.class);
-//            // Starts TargetActivity
-//            startActivity(i);
+            // TODO: reset user and passwort
+//            RegisterRequest request = new RegisterRequest(mEmail, mPassword);
+            RegisterRequest request = new RegisterRequest("hugo.himmel@technikum-wien.at", "1234567890");
 
-            // TODO: register the new account here.
+            User loggedInUser = null;
+            RegisterResponse response = null;
+            Call<RegisterResponse> call = userService.login(request);
+            try {
+                response = call.execute().body();
+                if(response != null) {
+                    loggedInUser = new User(mEmail,mPassword,response.getSessionToken(),response.getBalance());
+                    Intent i = new Intent(LoginActivity.this, OverviewActivity.class);
+                    // Starts TargetActivity
+                    startActivity(i);
+                }
+            }catch (IOException e) {
+                //DO NOTHING - return false - APP shows text
+                Log.e("ERROR", "NO USER");
+            }
             return false;
+
+            // POST
+//            call.enqueue(new Callback<RegisterResponse>() {
+//                @Override
+//                public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+//                    Log.d("test", "in call");
+//                    // response.isSuccessful() is true if the response code is 2xx
+//                    if (response.isSuccessful()) {
+////                        ((OkHttpCall) ((ExecutorCallAdapterFactory.ExecutorCallbackCall) call).delegate).args[0].get
+////                        loggedInUser.setSessionToken(response.body().getSessionToken());
+////                        loggedInUser.setSessionToken(response.body().getSessionToken());
+////                        User user = response.body();
+//                        Log.d("test", "in login - SUCCESS");
+//                    } else {
+//                        int statusCode = response.code();
+//                        Log.d("test", "in login - FAILURE");
+//                        // handle request errors yourself
+////                        ResponseBody errorBody = response.errorBody();
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(Call<RegisterResponse> call, Throwable t) {
+//                    // DO NOTHING - continue to return FALSE -> password is wrong
+//                    Log.d("test", "in COMPLETE FAILURE");
+//                }
+//            });
+
+            //GET
+//            Call<ErrorMessage> call = userService.test();
+//            call.enqueue(new Callback<ErrorMessage>() {
+//                @Override
+//                public void onResponse(Call<ErrorMessage> call, Response<ErrorMessage> response) {
+//                    Log.d("test", "in call");
+//                    // response.isSuccessful() is true if the response code is 2xx
+//                    if (response.isSuccessful()) {
+////                        User user = response.body();
+//                        Log.d("test", "in login - SUCCESS");
+//                    } else {
+//                        int statusCode = response.code();
+//                        Log.d("test", "in login - FAILURE");
+//                        // handle request errors yourself
+////                        ResponseBody errorBody = response.errorBody();
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(Call<ErrorMessage> call, Throwable t) {
+//                    // handle execution failures like no internet connectivity
+//                    Log.d("test", "in COMPLETE FAILURE");
+//                }
+//            });
         }
 
         @Override

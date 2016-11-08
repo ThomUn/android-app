@@ -16,19 +16,10 @@
         android:layout_width="match_parent"
         android:layout_height="177dp">
 
-        <TextView
-            android:text="TextView"
+        <com.github.mikephil.charting.charts.HorizontalBarChart
+            android:id="@+id/chart"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView2"
-            android:layout_weight="1" />
-
-        <TextView
-            android:text="TextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView3"
-            android:layout_weight="1" />
+            android:layout_height="match_parent" />
     </LinearLayout>
 
     <LinearLayout
