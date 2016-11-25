@@ -15,4 +15,24 @@
     </string>
     <string name="overview_title">Übersicht</string>
     <string name="activity_add_title">Guthaben aufladen</string>
+    <string name="title_activity_main_activitycvb">MainActivitycvb</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="addText1">Geben Sie bitte den gewünschten Betrag ein, den Sie übertragen wollen:</string>
+    <string name="addText2">Anschließend halten Sie die Telefone aneinander und tippen Sie folgenden Button:</string>
+    <string name="addButton">Weiter</string>
+
+    <string name="sendText1">Bitte geben Sie den Übertragungscode ein:</string>
+    <string name="sendButton">Bestätigen!</string>
+
+    <string name="receiveText1">Bitte geben Sie den oben angeführten Text ein:</string>
+    <string name="receiveButton">Bestätigen!</string>
 </resources>

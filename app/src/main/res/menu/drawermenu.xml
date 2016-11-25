@@ -1,0 +1,36 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Overview"
+        android:id="@+id/nav_item_overview"
+        android:icon="@drawable/ic_menu_gallery"/>
+
+    <item android:title="Geld überweisen"
+        android:id="@+id/nav_item_send"
+        android:icon="@drawable/ic_menu_send"/>
+
+    <item android:title="Überweisung empfangen"
+        android:id="@+id/nav_item_receive"
+        android:icon="@drawable/ic_menu_camera"/>
+
+    <item android:title="Ausloggen">
+        <menu>
+            <item
+                android:title="Ausloggen"
+                android:id="@+id/nav_item_logout"
+                android:icon="@drawable/ic_menu_share"/>
+            <!--<item-->
+                <!--android:title="Bin"-->
+                <!--android:icon="@drawable/ic_menu_gallery"/>-->
+        </menu>
+    </item>
+
+    <!--<group android:id="@+id/group_settings_id">-->
+
+        <!--<item android:title="Settings"-->
+            <!--android:icon="@drawable/ic_menu_slideshow"/>-->
+        <!--<item android:title="Help"-->
+            <!--android:icon="@drawable/ic_menu_gallery"/>-->
+    <!--</group>-->
+
+
+</menu>
