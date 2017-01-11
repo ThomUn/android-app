@@ -1,24 +1,31 @@
 package at.technikum.unger.android_app;
 
 import android.content.Intent;
-import android.nfc.FormatException;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ShareCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
+
+import java.io.IOException;
+
+import at.technikum.unger.android_app.rest.pojo.LogoutRequest;
+import at.technikum.unger.android_app.rest.pojo.LogoutResponse;
+import at.technikum.unger.android_app.rest.pojo.RegisterRequest;
+import at.technikum.unger.android_app.rest.pojo.RegisterResponse;
+import at.technikum.unger.android_app.rest.pojo.User;
+import at.technikum.unger.android_app.rest.rf.RFUserInterface;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements
         NfcAdapter.OnNdefPushCompleteCallback
@@ -41,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.getIntent().putExtra("username", "hugo.himmel@technikum-wien.at");
+
         nfcAdapter = NfcAdapter.getDefaultAdapter(this.getBaseContext());
         nfcAdapter.setOnNdefPushCompleteCallback(this, this);
 
@@ -48,7 +57,8 @@ public class MainActivity extends AppCompatActivity implements
          *Setup the DrawerLayout and NavigationView
          */
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
-        mNavigationView = (NavigationView) findViewById(R.id.shitstuff) ;
+        //TODO: shitstuff ausbessern
+        mNavigationView = (NavigationView) findViewById(R.id.shitstuff);
 
         /**
          * Lets inflate the very first fragment
@@ -57,39 +67,33 @@ public class MainActivity extends AppCompatActivity implements
 
         mFragmentManager = getSupportFragmentManager();
         mFragmentTransaction = mFragmentManager.beginTransaction();
-        mFragmentTransaction.replace(R.id.containerView,new OverviewFragment()).commit();
+        mFragmentTransaction.replace(R.id.containerView, new OverviewFragment()).commit();
         /**
          * Setup click events on the Navigation View Items.
          */
-
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 mDrawerLayout.closeDrawers();
                 if (menuItem.getItemId() == R.id.nav_item_overview) {
                     FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.containerView,new OverviewFragment()).commit();
-
+                    fragmentTransaction.replace(R.id.containerView, new OverviewFragment()).commit();
                 }
 
                 if (menuItem.getItemId() == R.id.nav_item_send) {
                     FragmentTransaction xfragmentTransaction = mFragmentManager.beginTransaction();
-                    xfragmentTransaction.replace(R.id.containerView,new TabFragment()).commit();
+                    xfragmentTransaction.replace(R.id.containerView, new TabFragment()).commit();
                 }
 
                 if (menuItem.getItemId() == R.id.nav_item_receive) {
                     FragmentTransaction xfragmentTransaction = mFragmentManager.beginTransaction();
-                    xfragmentTransaction.replace(R.id.containerView,new ReceiveFragment()).commit();
+                    xfragmentTransaction.replace(R.id.containerView, new ReceiveFragment()).commit();
                 }
 
                 if (menuItem.getItemId() == R.id.nav_item_logout) {
-                    Intent i = new Intent(MainActivity.this, LoginActivity.class);
-                    // Starts TargetActivity
-
-                    //RETROFIT CALL LOGOUT - DELETE SESSIONID IN JSON
-                    startActivity(i);
+                    UserLogoutTask userLogoutTask = new UserLogoutTask(getIntent().getStringExtra("username"), getIntent().getStringExtra("sessionToken"));
+                    userLogoutTask.execute();
                 }
-
                 return false;
             }
 
@@ -106,6 +110,57 @@ public class MainActivity extends AppCompatActivity implements
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         mDrawerToggle.syncState();
+    }
+
+    public class UserLogoutTask extends AsyncTask<Void, Void, Boolean> {
+        private String email;
+        private String sessionToken;
+
+        UserLogoutTask(String email, String sessionToken) {
+            this.email = email;
+            this.sessionToken = sessionToken;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            Retrofit retrofit = null;
+            if (Build.MODEL.contains("Android SDK built for x86")){
+                // Emulator
+                retrofit = new Retrofit.Builder()
+                        .baseUrl("http://10.0.2.2:8080/")
+                        .addConverterFactory(JacksonConverterFactory.create())
+                        .build();
+            } else {
+                // Real device
+                retrofit = new Retrofit.Builder()
+                        .baseUrl("http://192.168.0.10:8080/")
+                        .addConverterFactory(JacksonConverterFactory.create())
+                        .build();
+            }
+            RFUserInterface userService = retrofit.create(RFUserInterface.class);
+
+            // TODO: reset user and passwort
+            LogoutRequest request = new LogoutRequest(this.email, this.sessionToken);
+
+            LogoutResponse response = null;
+            Call<LogoutResponse> call = userService.logout(request);
+            try {
+                response = call.execute().body();
+                if(response != null) {
+                    if (response.isLoggedOut() == Boolean.TRUE){
+                        Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(i);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }catch (IOException e) {
+                //DO NOTHING - return false - APP shows text
+                Log.e("ERROR", "NO USER");
+            }
+            return false;
+        }
     }
 
     @Override
@@ -140,6 +195,15 @@ public class MainActivity extends AppCompatActivity implements
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    /*
+    * nexus schickt app - s7 schickt ndefmessage - warum?!
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
     }
 }
 

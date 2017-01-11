@@ -8,13 +8,13 @@ public class User {
 	private String email;
 	private String password;
 	private String sessionToken;
-	private int balance;
+	private double balance;
 
 	public User() {
 		super();
 	}
 
-	public User(String email, String hashedPassword, String sessionToken, int balance) {
+	public User(String email, String hashedPassword, String sessionToken, double balance) {
 		super();
 		this.email = email;
 		this.password = hashedPassword;
@@ -51,12 +51,12 @@ public class User {
 	}
 
 
-	public int getBalance() {
+	public double getBalance() {
 		return balance;
 	}
 
 
-	public void setBalance(int balance) {
+	public void setBalance(double balance) {
 		this.balance = balance;
 	}
 }

@@ -348,8 +348,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             try {
                 response = call.execute().body();
                 if(response != null) {
-                    loggedInUser = new User(mEmail,mPassword,response.getSessionToken(),response.getBalance());
+                    loggedInUser = new User(mEmail, mPassword, response.getSessionToken(), response.getBalance());
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                    i.putExtra("username", loggedInUser.getEmail());
+                    i.putExtra("sessionToken", loggedInUser.getSessionToken());
+                    i.putExtra("balance", loggedInUser.getBalance());
                     // Starts TargetActivity
                     startActivity(i);
                 }

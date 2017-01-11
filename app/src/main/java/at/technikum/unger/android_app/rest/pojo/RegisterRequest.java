@@ -5,7 +5,6 @@ package at.technikum.unger.android_app.rest.pojo;
  *
  */
 public class RegisterRequest {
-	
 	private String email;
 	private String clearTextPassword;
 

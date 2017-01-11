@@ -2,20 +2,20 @@ package at.technikum.unger.android_app;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -29,7 +29,8 @@ import android.widget.Toast;
  * create an instance of this fragment.
  */
 public class AddStep2Fragment extends Fragment {
-    Button b1;
+    Button sendButton;
+    EditText sendCodeText;
     private ProgressBar spinner;
     NfcAdapter nfcAdapter;
 
@@ -38,7 +39,27 @@ public class AddStep2Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_addstep2, null);
 
-        b1=(Button)view.findViewById(R.id.sendButton);
+        sendCodeText = (EditText)view.findViewById(R.id.sendCode);
+        sendCodeText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                if (!sendCodeText.getText().toString().equals("")){
+                    sendButton.setEnabled(true);
+                } else {
+                    sendButton.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        });
+
+        sendButton =(Button)view.findViewById(R.id.sendButton);
         spinner=(ProgressBar)view.findViewById(R.id.progressBar);
         spinner.setVisibility(View.INVISIBLE);
 
@@ -60,7 +81,7 @@ public class AddStep2Fragment extends Fragment {
             }
         }
 
-        b1.setOnClickListener(new View.OnClickListener() {
+        sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (spinner.getVisibility() == View.INVISIBLE) {
@@ -82,16 +103,21 @@ public class AddStep2Fragment extends Fragment {
                         Toast.makeText(getActivity(), "Please enable Android Beam.",
                                 Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(Settings.ACTION_NFCSHARING_SETTINGS));
-                    }
-                    else {
-                        String text = ("Beam me up, Android!\n\n" +
-                                "Beam Time: " + System.currentTimeMillis());
+                    } else {
+//                        String text = ("Beam me up, Android!\n\n" + "Beam Time: " + System.currentTimeMillis());
+                        String text = ("Sender der Überweisung: " + getActivity().getIntent().getStringExtra("username") + "\n" +
+                                "Betrag: " + ((TabFragment)getParentFragment()).getValue() + "Euro\n" +
+                                "Bestätigungscode: " + sendCodeText.getText().toString());
+
+                        //
+                        byte[] payload = new byte[1 + text.getBytes().length];
+                        System.arraycopy(text.getBytes(), 0, payload, 1 , text.getBytes().length);
 
                         NdefRecord record = new NdefRecord(
                                 NdefRecord.TNF_WELL_KNOWN,  //Our 3-bit Type name format
                                 NdefRecord.RTD_TEXT,        //Description of our payload
                                 new byte[0],                //The optional id for our Record
-                                text.getBytes());
+                                payload);
 
                         NdefMessage msg = new NdefMessage(record);
 
@@ -99,10 +125,10 @@ public class AddStep2Fragment extends Fragment {
                     }
                     return;
                 }
-                if (spinner.getVisibility() == View.VISIBLE) {
-                    spinner.setVisibility(View.INVISIBLE);
-                    return;
-                }
+//                if (spinner.getVisibility() == View.VISIBLE) {
+//                    spinner.setVisibility(View.INVISIBLE);
+//                    return;
+//                }
 
             }
         });

@@ -33,6 +33,6 @@
     <string name="sendText1">Bitte geben Sie den Übertragungscode ein:</string>
     <string name="sendButton">Bestätigen!</string>
 
-    <string name="receiveText1">Bitte geben Sie den oben angeführten Text ein:</string>
+    <string name="receiveText1">Bitte geben Sie den Bestätigungscode aus dem vorher erhaltenen NFC-Tag ein:</string>
     <string name="receiveButton">Bestätigen!</string>
 </resources>

@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +27,17 @@ public class TabFragment extends Fragment {
     public static ViewPager viewPager;
     public static int int_items = 2 ;
 
+    private double value = 0.0;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         /**
          *Inflate tab_layout and setup Views.
          */
-        View x =  inflater.inflate(R.layout.tab_layout,null);
-        tabLayout = (TabLayout) x.findViewById(R.id.tabs);
-        viewPager = (ViewPager) x.findViewById(R.id.viewpager);
+        View view =  inflater.inflate(R.layout.tab_layout, null);
+        tabLayout = (TabLayout) view.findViewById(R.id.tabs);
+        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 
         /**
          *Set an Apater for the View Pager
@@ -52,7 +56,7 @@ public class TabFragment extends Fragment {
             }
         });
 
-        return x;
+        return view;
 
     }
 
@@ -63,7 +67,7 @@ public class TabFragment extends Fragment {
         }
 
         /**
-         * Return fragment with respect to Position .
+         * Return fragment with respect to Position.
          */
         @Override
         public Fragment getItem(int position)
@@ -96,5 +100,17 @@ public class TabFragment extends Fragment {
             }
             return null;
         }
+    }
+
+    public static ViewPager getViewPager() {
+        return viewPager;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
     }
 }

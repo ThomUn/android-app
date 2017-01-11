@@ -1,6 +1,8 @@
 package at.technikum.unger.android_app.rest.rf;
 
 import at.technikum.unger.android_app.rest.pojo.ErrorMessage;
+import at.technikum.unger.android_app.rest.pojo.LogoutRequest;
+import at.technikum.unger.android_app.rest.pojo.LogoutResponse;
 import at.technikum.unger.android_app.rest.pojo.RegisterRequest;
 import at.technikum.unger.android_app.rest.pojo.RegisterResponse;
 import okhttp3.ResponseBody;
@@ -17,6 +19,9 @@ import retrofit2.http.POST;
 public interface RFUserInterface {
     @POST("/login")
     public Call<RegisterResponse> login(@Body RegisterRequest request);
+
+    @POST("/logout")
+    public Call<LogoutResponse> logout(@Body LogoutRequest request);
 
     @GET("/test")
     public Call<ErrorMessage> test();

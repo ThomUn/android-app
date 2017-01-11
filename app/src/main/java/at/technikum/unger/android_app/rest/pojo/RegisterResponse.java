@@ -5,14 +5,13 @@ package at.technikum.unger.android_app.rest.pojo;
  *
  */
 public class RegisterResponse {
-	
 	private String sessionToken;
-	private int balance;
+	private double balance;
 
 	public RegisterResponse() {
 	}
 
-	public RegisterResponse(String sessionToken, int balance) {
+	public RegisterResponse(String sessionToken, double balance) {
 		super();
 		this.sessionToken = sessionToken;
 		this.balance = balance;
@@ -26,11 +25,11 @@ public class RegisterResponse {
 		this.sessionToken = sessionToken;
 	}
 
-	public int getBalance() {
+	public double getBalance() {
 		return balance;
 	}
 
-	public void setBalance(int balance) {
+	public void setBalance(double balance) {
 		this.balance = balance;
 	}
 }
